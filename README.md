@@ -1,3 +1,34 @@
+Overview
+========
+
+This fork add ability to use xhgui as docker container
+Just use ```docker pull duhon/xhgui``` and ```docker pull mongo``` for link mongo to xhgui
+Or use docker-compose approach:
+
+````xml
+version: '3.2'
+services:
+  app:
+    image: _YOUR_APP_
+  mongodb:
+    image: mongo
+    ports:
+      - "27017:27017"
+  xhgui:
+    image: duhon/xhgui
+    depends_on:
+      - mongodb
+    ports:
+      - "0.0.0.0:8088:80"
+````
+
+For pass data from tideways to xhgui just add **tideways.ini** to your Application
+
+
+Below you can find default docs:
+
+
+
 xhgui
 =====
 
