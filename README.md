@@ -80,3 +80,19 @@ IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
 CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
 TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+
+
+How To Run
+==========
+
+1. Make sure you have installed tideways php extension. If you haven't - go to [tideways extension](https://github.com/tideways/php-profiler-extension) and install it.
+2. Go to php.ini file and add above configuration for tideways;
+3. Restart php-fpm and apache;
+4. Make sure you have installed docker. If not - go to [Docker](https://docs.docker.com/install/) and install it;
+5. Make sure you have installed docker-compose. If not - go to [Docker Compose](https://docs.docker.com/compose/install/) and install it;
+6. Save docker-compose file from above;
+7. Run `docker-compose up -d` to start containers;
+8. Your xhgui web interface must be available on `0.0.0.0:8088`
+9. Use [auto_prepand_file](http://php.net/manual/en/ini.core.php#ini.auto-prepend-file) to add file `external/header.php` to your application;
+10. Run you application and check results on xhgui web interface.
