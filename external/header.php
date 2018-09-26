@@ -43,7 +43,7 @@ class XH
     {
         $options = [
             'http' => [
-                'header'  => "Content-type: application/json\r\n"",
+                'header'  => "Content-type: application/json\r\n",
                 'method'  => 'POST',
                 'content' => json_encode($data)
             ]
