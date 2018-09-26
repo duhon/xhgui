@@ -95,4 +95,4 @@ How To Run
 7. Run `docker-compose up -d` to start containers;
 8. Your xhgui web interface must be available on `0.0.0.0:8088`
 9. Use [auto_prepand_file](http://php.net/manual/en/ini.core.php#ini.auto-prepend-file) to add file `external/header.php` to your application;
-10. Run you application and check results on xhgui web interface.
+10. Run your application and check results on xhgui web interface.
