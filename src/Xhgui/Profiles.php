@@ -158,42 +158,45 @@ class Xhgui_Profiles
             $col = '$meta.request_ts';
         }
 
-        $results = $this->_collection->aggregate(array(
-            array('$match' => $match),
+        $results = $this->_collection->aggregate(
             array(
-                '$project' => array(
-                    'date' => $col,
-                    'profile.main()' => 1
-                )
+                array('$match' => $match),
+                array(
+                    '$project' => array(
+                        'date' => $col,
+                        'profile.main()' => 1
+                    )
+                ),
+                array(
+                    '$group' => array(
+                        '_id' => '$date',
+                        'row_count' => array('$sum' => 1),
+                        'wall_times' => array('$push' => '$profile.main().wt'),
+                        'cpu_times' => array('$push' => '$profile.main().cpu'),
+                        'mu_times' => array('$push' => '$profile.main().mu'),
+                        'pmu_times' => array('$push' => '$profile.main().pmu'),
+                    )
+                ),
+                array(
+                    '$project' => array(
+                        'date' => '$date',
+                        'row_count' => '$row_count',
+                        'raw_index' => array(
+                            '$multiply' => array(
+                                '$row_count',
+                                $percentile / 100
+                            )
+                        ),
+                        'wall_times' => '$wall_times',
+                        'cpu_times' => '$cpu_times',
+                        'mu_times' => '$mu_times',
+                        'pmu_times' => '$pmu_times',
+                    )
+                ),
+                array('$sort' => array('_id' => 1)),
             ),
-            array(
-                '$group' => array(
-                    '_id' => '$date',
-                    'row_count' => array('$sum' => 1),
-                    'wall_times' => array('$push' => '$profile.main().wt'),
-                    'cpu_times' => array('$push' => '$profile.main().cpu'),
-                    'mu_times' => array('$push' => '$profile.main().mu'),
-                    'pmu_times' => array('$push' => '$profile.main().pmu'),
-                )
-            ),
-            array(
-                '$project' => array(
-                    'date' => '$date',
-                    'row_count' => '$row_count',
-                    'raw_index' => array(
-                        '$multiply' => array(
-                            '$row_count',
-                            $percentile / 100
-                        )
-                    ),
-                    'wall_times' => '$wall_times',
-                    'cpu_times' => '$cpu_times',
-                    'mu_times' => '$mu_times',
-                    'pmu_times' => '$pmu_times',
-                )
-            ),
-            array('$sort' => array('_id' => 1)),
-        ));
+            array('cursor' => array())
+        );
 
         if (empty($results['result'])) {
             return array();
@@ -236,25 +239,29 @@ class Xhgui_Profiles
         if (isset($search['date_end'])) {
             $match['meta.request_date']['$lte'] = (string)$search['date_end'];
         }
-        $results = $this->_collection->aggregate(array(
-            array('$match' => $match),
+        $results = $this->_collection->aggregate(
             array(
-                '$project' => array(
-                    'date' => '$meta.request_date',
-                    'profile.main()' => 1,
-                )
+                array('$match' => $match),
+                array(
+                    '$project' => array(
+                        'date' => '$meta.request_date',
+                        'profile.main()' => 1,
+                    )
+                ),
+                array(
+                    '$group' => array(
+                        '_id' => '$date',
+                        'avg_wt' => array('$avg' => '$profile.main().wt'),
+                        'avg_cpu' => array('$avg' => '$profile.main().cpu'),
+                        'avg_mu' => array('$avg' => '$profile.main().mu'),
+                        'avg_pmu' => array('$avg' => '$profile.main().pmu'),
+                    )
+                ),
+                array('$sort' => array('_id' => 1))
             ),
-            array(
-                '$group' => array(
-                    '_id' => '$date',
-                    'avg_wt' => array('$avg' => '$profile.main().wt'),
-                    'avg_cpu' => array('$avg' => '$profile.main().cpu'),
-                    'avg_mu' => array('$avg' => '$profile.main().mu'),
-                    'avg_pmu' => array('$avg' => '$profile.main().pmu'),
-                )
-            ),
-            array('$sort' => array('_id' => 1))
-        ));
+            array('cursor' => array())
+        );
+
         if (empty($results['result'])) {
             return array();
         }
