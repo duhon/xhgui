@@ -1,0 +1,26 @@
+version: '3.2'
+services:
+  mongodb:
+    image: mongo
+    ports:
+      - "27017:27017"
+  xhgui:
+#    image: duhon/xhgui
+#    image: xhgui-local
+    build: .
+    volumes:
+      - .:/var/xhgui
+    depends_on:
+      - mongodb
+    working_dir: /var/xhgui
+    ports:
+      - "0.0.0.0:8088:80"
+  composer:
+    restart: 'no'
+    image: composer/composer:php7
+    depends_on:
+      - xhgui
+    working_dir: /var/xhgui
+    command: "install --ignore-platform-reqs --no-dev"
+    volumes:
+      - .:/var/xhgui

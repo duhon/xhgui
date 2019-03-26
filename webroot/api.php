@@ -32,6 +32,8 @@ try {
             'request_ts' => new MongoDB\BSON\UTCDateTime(DateTime::createFromFormat('U', $time)),
             'request_ts_micro' => new MongoDB\BSON\UTCDateTime(preg_replace('/\D/', '',  $milliseconds)),
             'request_date' => date('Y-m-d', $time),
+            'topic' => $_POST['meta']['method'],
+            'params' => $_POST['meta']['params']
         ]
     ];
 
