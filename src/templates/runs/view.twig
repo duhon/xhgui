@@ -22,8 +22,14 @@
                     View Callgraph
                 </a>
                 <li><strong>URL</strong> <a href="{{ url('url.view', {'url': result.meta('url')|simple_url }) }}">{{ result.meta('url') }}</a></li>
+
+                {% if result.meta('topic') is not empty %}
                 <li><strong>Topic</strong> {{result.meta('topic')}} </li>
+                {% endif %}
+
+                {% if result.meta('params') is not empty %}
                 <li><strong>Params</strong> <a href="#" id="view-request-params">View params</a> </li>
+                {% endif %}
 
                 <div id="request-params-details">
                     <span class="request-params-button-close pull-right">&#10799;</span>

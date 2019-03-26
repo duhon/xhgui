@@ -27,7 +27,7 @@ class XH
         $method = null;
         $params = null;
 
-        if ($inputData !== null) {
+        if (!empty($inputData) && is_array($inputData)) {
             $parsedData = json_decode($inputData, true);
 
             if (array_key_exists('method', $parsedData)) {
