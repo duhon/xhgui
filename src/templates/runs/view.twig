@@ -22,6 +22,16 @@
                     View Callgraph
                 </a>
                 <li><strong>URL</strong> <a href="{{ url('url.view', {'url': result.meta('url')|simple_url }) }}">{{ result.meta('url') }}</a></li>
+                <li><strong>Topic</strong> {{result.meta('topic')}} </li>
+                <li><strong>Params</strong> <a href="#" id="view-request-params">View params</a> </li>
+
+                <div id="request-params-details">
+                    <span class="request-params-button-close pull-right">&#10799;</span>
+                    <div class="request-params-details-content" data-params="{{result.meta('params')|json_encode()}}">
+                        <pre id="params-json-viwer"></pre>
+                    </div>
+                </div>
+
                 <li><strong>Time</strong> {{ result.date|date(date_format) }}</li>
                 <li><strong>ID</strong> <a href="{{ url('custom.help', {id: result.id|trim }) }}">{{ result.id }}</a></li>
     {#

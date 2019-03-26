@@ -73,6 +73,8 @@ class Xhgui_Controller_Run extends Xhgui_Controller
 
         $result->calculateSelf();
 
+//        var_dump($result);die();
+
         // Self wall time graph
         $timeChart = $result->extractDimension('ewt', $detailCount);
 

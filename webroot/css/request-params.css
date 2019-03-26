@@ -1,0 +1,39 @@
+#request-params-details {
+    width: 40%;
+    height: 100%;
+    position: fixed;
+    top: 0;
+    left: -40%;
+    z-index: 1020;
+    background: #fff;
+    box-shadow: 0 4px 4px rgba(0, 0, 0, 0.5);
+    transition: left 0.25s ease-out;
+}
+#request-params-details.active {
+    left: 0;
+    transition: left 0.25s ease-out;
+}
+.request-params-details-content {
+    height: 100%;
+    padding: 0 10px 10px 10px;
+    overflow-y: scroll;
+}
+.request-params-button-close {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    background: #888;
+    color: #fff;
+    display: inline-block;
+    padding: 4px;
+    line-height: 12px;
+    font-size: 24px;
+    height: 20px;
+    width: 20px;
+    border-radius: 15px;
+    text-align: center;
+    -moz-border-radius: 15px;
+    -webkit-border-radius: 15px;
+    vertical-align: middle;
+    cursor: pointer;
+}
