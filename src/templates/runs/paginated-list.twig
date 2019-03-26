@@ -11,6 +11,7 @@
                   Method
                 </th>
                 <th>URL</th>
+                <th>Topic</th>
                 <th>
                     {{ helpers.sort_link('Time', base_url, 'time', paging, search) }}
                 </th>
@@ -64,6 +65,9 @@
                     'url.view',
                     {'url': result.meta.simple_url}
                 ) }}
+            </td>
+            <td>
+                {{result.meta('topic')}}
             </td>
             <td>
               <a href="{{ url('run.view', {'id': result.id|trim }) }}">

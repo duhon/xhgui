@@ -11,17 +11,33 @@ class XH
             return;
         }
         tideways_xhprof_enable(TIDEWAYS_XHPROF_FLAGS_CPU | TIDEWAYS_XHPROF_FLAGS_MEMORY);
+        $input = file_get_contents('php://input');
         register_shutdown_function(
-            function () {
-                \XH::stop();
+            function () use ($input) {
+                \XH::stop($input);
             }
         );
     }
 
-    static function stop()
+    static function stop($inputData = null)
     {
         ignore_user_abort(true);
         flush();
+
+        $method = null;
+        $params = null;
+
+        if ($inputData !== null) {
+            $parsedData = json_decode($inputData, true);
+
+            if (array_key_exists('method', $parsedData)) {
+                $method = $parsedData['method'];
+            }
+
+            if (array_key_exists('params', $parsedData)) {
+                $params = $parsedData['params'];
+            }
+        }
 
         $data = [
             'profile' => tideways_xhprof_disable(),
@@ -29,11 +45,13 @@ class XH
                 'server' => $_SERVER,
                 'get' => $_GET,
                 'env' => $_ENV,
+                'method' => $method,
+                'params' => $params,
             ]
         ];
 
         try {
-            self::send('http://xhgui/api.php', $data);
+            self::send('http://10.0.2.2:8088/api.php', $data);
         } catch (Exception $e) {
             error_log('xhgui - ' . $e->getMessage());
         }
