@@ -4,6 +4,64 @@
 
 class XH
 {
+    static function getRequestInput()
+    {
+        $input = null;
+
+        // check if request is via http
+        if (array_key_exists('REQUEST_METHOD', $_SERVER)) {
+            $raw = file_get_contents('php://input');
+            $input = json_decode($raw, true);
+        }
+
+        // check if request is via cli
+        if (array_key_exists('argv', $_SERVER)) {
+            $raw = stream_get_contents(STDIN);
+            array_push($_SERVER['argv'], $raw);
+
+            $json = base64_decode($raw, true);
+            $input = json_decode($json, true);
+        }
+
+        return $input;
+    }
+
+    static function getTopicFromInput($input)
+    {
+        $topic = null;
+
+        if (!empty($input) && is_array($input)) {
+            if (array_key_exists('method', $input)) {
+                $topic = $input['method'];
+            }
+
+            if ($topic === null && array_key_exists('delivery_info', $input) && array_key_exists('routing_key', $input['delivery_info'])) {
+                $topic = $input['delivery_info']['routing_key'];
+            }
+
+        }
+
+        return $topic;
+    }
+
+    static function getParamsFromInput($input)
+    {
+        $params = null;
+
+        if (!empty($input) && is_array($input)) {
+            if (array_key_exists('params', $input)) {
+                $params = $input['params'];
+            }
+
+            if ($params === null && array_key_exists('body', $input)) {
+                $params = json_decode($input['body'], true);
+            }
+
+        }
+
+        return $params;
+    }
+
     static function start() 
     {
         if (!extension_loaded('tideways_xhprof')) {
@@ -11,7 +69,9 @@ class XH
             return;
         }
         tideways_xhprof_enable(TIDEWAYS_XHPROF_FLAGS_CPU | TIDEWAYS_XHPROF_FLAGS_MEMORY);
-        $input = file_get_contents('php://input');
+
+        $input = self::getRequestInput();
+
         register_shutdown_function(
             function () use ($input) {
                 \XH::stop($input);
@@ -24,29 +84,14 @@ class XH
         ignore_user_abort(true);
         flush();
 
-        $method = null;
-        $params = null;
-
-        if (!empty($inputData) && is_array($inputData)) {
-            $parsedData = json_decode($inputData, true);
-
-            if (array_key_exists('method', $parsedData)) {
-                $method = $parsedData['method'];
-            }
-
-            if (array_key_exists('params', $parsedData)) {
-                $params = $parsedData['params'];
-            }
-        }
-
         $data = [
             'profile' => tideways_xhprof_disable(),
             'meta' => [
                 'server' => $_SERVER,
                 'get' => $_GET,
                 'env' => $_ENV,
-                'method' => $method,
-                'params' => $params,
+                'method' => self::getTopicFromInput($inputData),
+                'params' => self::getParamsFromInput($inputData),
             ]
         ];
 

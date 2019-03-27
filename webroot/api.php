@@ -12,7 +12,7 @@ try {
     $uri = array_key_exists('REQUEST_URI', $_SERVER) ? $_SERVER['REQUEST_URI'] : null;
     if (empty($uri)) {
         $cmd = basename($_SERVER['argv'][0]);
-        $uri = $cmd . ' ' . implode(' ', array_slice($_SERVER['argv'], 1));
+        $uri = $cmd . ' ' . implode(' ', array_slice($_SERVER['argv'], 1, 1));
     }
 
     $time = empty($_SERVER['REQUEST_TIME']) ? (new DateTime())->getTimestamp() : $_SERVER['REQUEST_TIME'];
