@@ -3,7 +3,7 @@
  * Default configuration for Xhgui
  */
 return array(
-    'debug' => false,
+    'debug' => true,
     'mode' => 'development',
 
     // Can be either mongodb or file.

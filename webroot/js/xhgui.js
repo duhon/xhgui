@@ -47,6 +47,14 @@ $(document).ready(function () {
         $.post($(e.currentTarget).attr('href')).success(function () {
             window.location.reload();
         });
+    });
+
+    $('a[action="deleteAll"]').click(function(e) {
+        e.preventDefault();
+
+        $.post($(e.currentTarget).attr('href')).success(function () {
+            window.location.reload();
+        });
     })
 
 });
