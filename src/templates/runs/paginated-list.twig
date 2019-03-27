@@ -54,7 +54,11 @@
             {% endif %}
             <td>
               <a href="{{ url('run.view', {'id': result.id|trim }) }}">
-                {{result.meta('SERVER.REQUEST_METHOD')}}
+                  {%  if result.meta('SERVER.REQUEST_METHOD') is not empty %}
+                      {{ result.meta('SERVER.REQUEST_METHOD') }}
+                  {% else %}
+                      CLI
+                  {% endif %}
               </a>
             </td>
             <td>
