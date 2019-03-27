@@ -28,13 +28,13 @@
                 {% endif %}
 
                 {% if result.meta('params') is not empty %}
-                <li><strong>Params</strong> <a href="#" id="view-request-params">View params</a> </li>
+                <li><strong>Params</strong> <a href="#" class="view-request-params" data-params="{{result.meta('params')|json_encode()}}">View params</a> </li>
                 {% endif %}
 
                 <div id="request-params-details">
                     <span class="request-params-button-close pull-right">&#10799;</span>
-                    <div class="request-params-details-content" data-params="{{result.meta('params')|json_encode()}}">
-                        <pre id="params-json-viwer"></pre>
+                    <div class="request-params-details-content">
+                        <pre id="params-json-viewer"></pre>
                     </div>
                 </div>
 
