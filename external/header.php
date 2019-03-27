@@ -14,13 +14,22 @@ class XH
             $input = json_decode($raw, true);
         }
 
-        // check if request is via cli
-        if (array_key_exists('argv', $_SERVER)) {
+        // check if request is via console
+        if (array_key_exists('argv', $_SERVER) && basename($_SERVER['argv'][0]) == 'console') {
+            stream_set_blocking(STDIN, false);
             $raw = stream_get_contents(STDIN);
             array_push($_SERVER['argv'], $raw);
 
             $json = base64_decode($raw, true);
             $input = json_decode($json, true);
+        }
+
+        // check if request is via job
+        if (array_key_exists('argv', $_SERVER) && basename($_SERVER['argv'][0]) == 'job') {
+            $input = [
+                'method' => $_SERVER['argv'][2] ?? '',
+                'params' => array_slice($_SERVER['argv'], 1)
+            ];
         }
 
         return $input;
