@@ -32,7 +32,7 @@ How To Run
 
 1. Clone this repo to your oms folder on your host machine;
 2. Make sure you have installed tideways php extension on your vagrant box. If you haven't - go to [tideways extension](https://github.com/tideways/php-profiler-extension) and install it;
-    2. Note, for our current vagrant box (OMS721) you might need to install `autoconf` to be able to install tideways extension. Check "Install autoconf for OMS721" below to do that.
+    * Note, for our current vagrant box (OMS721) you might need to install `autoconf` to be able to install tideways extension. Check "Install autoconf for OMS721" below to do that.
 3. Go to php.ini file and add below configuration for tideways;
     ```ini
        [tideways]
@@ -50,12 +50,12 @@ How To Run
 8. Run `docker-compose up -d` to start containers;
 9. Your xhgui web interface must be available on [http://0.0.0.0:8088](http://0.0.0.0:8088)
 10. Your xhgui api interface must be visible from inside a vagrant box on `http://10.0.2.2:8088/api.php`;
-    10. If xhgui api url is different from `http://10.0.2.2:8088/api.php` - go to `external/header.php` file and update const `PATH_TO_XHGUI_API` with a proper value.
+    * If xhgui api url is different from `http://10.0.2.2:8088/api.php` - go to `external/header.php` file and update const `PATH_TO_XHGUI_API` with a proper value.
 11. To enable profiling you need manually include `external/header.php` file to a php script that you want to profile;
-    11. Add `include "/platform/svc/app/oms/xhgui/external/header.php";` to `backoffice/web/app_dev.php` to profile backoffice;
-    11. Add `include "/platform/svc/app/oms/xhgui/external/header.php";` to `oms/web/app.php` to profile oms;
-    11. Add `include "/platform/svc/app/oms/xhgui/external/header.php";` to `oms/app/console` to profile console commands;
-    11. Add `include "/platform/svc/app/oms/xhgui/external/header.php";` to `oms/app/job-console.php` to profile cron jobs;
+    * Add `include "/platform/svc/app/oms/xhgui/external/header.php";` to `backoffice/web/app_dev.php` to profile backoffice;
+    * Add `include "/platform/svc/app/oms/xhgui/external/header.php";` to `oms/web/app.php` to profile oms;
+    * Add `include "/platform/svc/app/oms/xhgui/external/header.php";` to `oms/app/console` to profile console commands;
+    * Add `include "/platform/svc/app/oms/xhgui/external/header.php";` to `oms/app/job-console.php` to profile cron jobs;
 12. Run your application and check results on xhgui web interface.
 
 xhgui
