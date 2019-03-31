@@ -30,16 +30,33 @@ Below you can find default docs:
 How To Run
 ==========
 
-1. Make sure you have installed tideways php extension. If you haven't - go to [tideways extension](https://github.com/tideways/php-profiler-extension) and install it.
-2. Go to php.ini file and add above configuration for tideways;
-3. Restart php-fpm and apache;
-4. Make sure you have installed docker. If not - go to [Docker](https://docs.docker.com/install/) and install it;
-5. Make sure you have installed docker-compose. If not - go to [Docker Compose](https://docs.docker.com/compose/install/) and install it;
-6. Save docker-compose file from above;
-7. Run `docker-compose up -d` to start containers;
-8. Your xhgui web interface must be available on `0.0.0.0:8088`
-9. Use [auto_prepand_file](http://php.net/manual/en/ini.core.php#ini.auto-prepend-file) to add file `external/header.php` to your application;
-10. Run your application and check results on xhgui web interface.
+1. Clone this repo to your oms folder on your host machine;
+2. Make sure you have installed tideways php extension on your vagrant box. If you haven't - go to [tideways extension](https://github.com/tideways/php-profiler-extension) and install it;
+    2. Note, for our current vagrant box (OMS721) you might need to install `autoconf` to be able to install tideways extension. Check "Install autoconf for OMS721" below to do that.
+3. Go to php.ini file and add below configuration for tideways;
+    ```ini
+       [tideways]
+       extension="/path/to/tideways/tideways.so"
+       tideways.connection=unix:///usr/local/var/run/tidewaysd.sock
+       tideways.load_library=0
+       tideways.auto_prepend_library=0
+       tideways.auto_start=0
+       tideways.sample_rate=100
+    ```
+4. Restart php-fpm and apache;
+5. Make sure you have installed docker on your host machine. If not - go to [Docker](https://docs.docker.com/install/) and install it;
+6. Make sure you have installed docker-compose on your host machine. If not - go to [Docker Compose](https://docs.docker.com/compose/install/) and install it;
+7. Go to your xhgui folder on your host machine;
+8. Run `docker-compose up -d` to start containers;
+9. Your xhgui web interface must be available on [http://0.0.0.0:8088](http://0.0.0.0:8088)
+10. Your xhgui api interface must be visible from inside a vagrant box on `http://10.0.2.2:8088/api.php`;
+    10. If xhgui api url is different from `http://10.0.2.2:8088/api.php` - go to `external/header.php` file and update const `PATH_TO_XHGUI_API` with a proper value.
+11. To enable profiling you need manually include `external/header.php` file to a php script that you want to profile;
+    11. Add `include "/platform/svc/app/oms/xhgui/external/header.php";` to `backoffice/web/app_dev.php` to profile backoffice;
+    11. Add `include "/platform/svc/app/oms/xhgui/external/header.php";` to `oms/web/app.php` to profile oms;
+    11. Add `include "/platform/svc/app/oms/xhgui/external/header.php";` to `oms/app/console` to profile console commands;
+    11. Add `include "/platform/svc/app/oms/xhgui/external/header.php";` to `oms/app/job-console.php` to profile cron jobs;
+12. Run your application and check results on xhgui web interface.
 
 xhgui
 =====
@@ -67,6 +84,21 @@ tideways.load_library=0
 tideways.auto_prepend_library=0
 tideways.auto_start=0
 tideways.sample_rate=100
+```
+
+Install autoconf for OMS721
+=======
+```bash
+sudo yum install -y m4
+sudo yum install -y perl-Data-Dumper.x86_64
+
+wget http://ftp.gnu.org/gnu/autoconf/autoconf-2.69.tar.gz
+gunzip autoconf-2.69.tar.gz
+tar xvf autoconf-2.69.tar
+cd autoconf-2.69
+./configure
+sudo make
+sudo make install
 ```
 
 License

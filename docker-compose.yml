@@ -4,9 +4,8 @@ services:
     image: mongo
     ports:
       - "27017:27017"
+
   xhgui:
-#    image: duhon/xhgui
-#    image: xhgui-local
     build: .
     volumes:
       - .:/var/xhgui
@@ -15,6 +14,7 @@ services:
     working_dir: /var/xhgui
     ports:
       - "0.0.0.0:8088:80"
+
   composer:
     restart: 'no'
     image: composer/composer:php7

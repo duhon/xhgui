@@ -16,7 +16,6 @@ RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local
 ADD . /var/xhgui
 WORKDIR /var/xhgui
 RUN chmod 777 cache
-#RUN composer install --no-dev
 COPY php.ini /usr/local/etc/php/conf.d/custom_php.ini
 COPY apache.conf /etc/apache2/sites-enabled/000-default.conf
 

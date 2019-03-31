@@ -2,6 +2,8 @@
 
 \XH::start();
 
+define('PATH_TO_XHGUI_API', 'http://10.0.2.2:8088/api.php');
+
 class XH
 {
     static function getRequestInput()
@@ -105,7 +107,7 @@ class XH
         ];
 
         try {
-            self::send('http://10.0.2.2:8088/api.php', $data);
+            self::send(PATH_TO_XHGUI_API, $data);
         } catch (Exception $e) {
             error_log('xhgui - ' . $e->getMessage());
         }
