@@ -90,6 +90,15 @@ class Xhgui_Db_Mapper
             );
         }
 
+        if (isset($search['topic'])) {
+            // Not sure if letting people use regex here
+            // is a good idea. Only one way to find out.
+            $conditions['meta.topic'] = array(
+                '$regex' => (string)$search['topic'],
+                '$options' => 'i',
+            );
+        }
+
         return $conditions;
     }
 
