@@ -80,7 +80,13 @@
                 ) }}
             </td>
             <td>
-                {{result.meta('topic')}}
+                {% set topic = result.meta('topic') %}
+                {{ helpers.tip_link(
+                    topic,
+                    50,
+                    'home',
+                    {'topic': result.meta.topic}
+                ) }}
 
                 {% if result.meta('params') is not empty %}
                     <a href="#" class="view-request-params" data-params="{{result.meta('params')|json_encode()}}">[?]</a>
