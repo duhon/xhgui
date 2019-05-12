@@ -20,7 +20,10 @@ class XH
         if (array_key_exists('argv', $_SERVER) && basename($_SERVER['argv'][0]) == 'console') {
             stream_set_blocking(STDIN, false);
             $raw = stream_get_contents(STDIN);
-            array_push($_SERVER['argv'], $raw);
+
+            if (!empty($raw)) {
+                array_push($_SERVER['argv'], $raw);
+            }
 
             $json = base64_decode($raw, true);
             $input = json_decode($json, true);
