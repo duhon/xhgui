@@ -33,6 +33,7 @@ How To Run
 1. Clone this repo to your oms folder on your host machine;
 2. Make sure you have installed tideways php extension on your vagrant box. If you haven't - go to [tideways extension](https://github.com/tideways/php-profiler-extension) and install it;
     * Note, for our current vagrant box (OMS721) you might need to install `autoconf` to be able to install tideways extension. Check "Install autoconf for OMS721" below to do that.
+    * Note, for vagrant box that we use for OMS this step is automated with puppet. Check if file `/home/vagrant/php-xhprof-extension/modules/tideways_xhprof.so` exists inside a box. If not - run `vagrant provision`.
 3. Go to php.ini file and add below configuration for tideways;
     ```ini
        [tideways]
