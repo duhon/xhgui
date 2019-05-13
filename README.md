@@ -79,7 +79,7 @@ Once installed, you can use the following configuration data:
 
 ```ini
 [tideways]
-extension="/home/vagrant/php-xhprof-extension/modules/tideways_xhprof.so"
+extension=tideways_xhprof.so
 tideways.connection=unix:///usr/local/var/run/tidewaysd.sock
 tideways.load_library=0
 tideways.auto_prepend_library=0
