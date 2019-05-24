@@ -1,5 +1,8 @@
 <?php
 
+require_once __DIR__ . "/../oms/MemoryDbLogger.php";
+
+\XH::patchDbConnection();
 \XH::start();
 
 define('PATH_TO_XHGUI_API', 'http://10.0.2.2:8088/api.php');
@@ -76,7 +79,7 @@ class XH
         return $params;
     }
 
-    static function start() 
+    static function start()
     {
         if (!extension_loaded('tideways_xhprof')) {
             error_log('xhgui - either extension tideways must be loaded');
@@ -106,6 +109,7 @@ class XH
                 'env' => $_ENV,
                 'method' => self::getTopicFromInput($inputData),
                 'params' => self::getParamsFromInput($inputData),
+                'queries' => OMS\MemoryDbLogger::getQueries()
             ]
         ];
 
@@ -132,5 +136,30 @@ class XH
             error_log(file_get_contents('php://input'));
             throw new Exception('fail to send data');
         }
+    }
+
+    static function patchDbConnection()
+    {
+        require_once __DIR__ . "/../vendor/autoload.php";
+        require_once __DIR__ . "/../vendor/antecedent/patchwork/Patchwork.php";
+
+        Patchwork\redefine(
+            "Doctrine\DBAL\Connection::executeQuery",
+            function() {
+                $s = microtime(true);
+                $r = Patchwork\relay();
+                $f = microtime(true);
+
+                OMS\MemoryDbLogger::logQuery(func_get_args(), $f - $s);
+
+                return $r;
+            }
+        );
+
+        if (!class_exists(Doctrine\DBAL\Connection::class)) {
+            error_log("Can't patch Doctrine\DBAL\Connection class");
+        }
+
+        Patchwork\CodeManipulation\Stream::unwrap();
     }
 }

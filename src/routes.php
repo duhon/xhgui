@@ -55,6 +55,11 @@ $app->get('/run/callgraph', function () use ($di, $app) {
     $app->controller->callgraph();
 })->name('run.callgraph');
 
+$app->get('/run/db-queries', function () use ($di, $app) {
+    $app->controller = $di['runController'];
+    $app->controller->dbQueries();
+})->name('run.db_queries');
+
 $app->get('/run/callgraph/data', function () use ($di, $app) {
     $di['runController']->callgraphData();
 })->name('run.callgraph.data');

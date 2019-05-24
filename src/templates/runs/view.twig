@@ -21,6 +21,10 @@
             <a href="{{ url('run.callgraph', {id: result.id|trim }) }}" class="btn back-link">
                     View Callgraph
                 </a>
+            <a href="{{ url('run.db_queries', {id: result.id|trim }) }}" class="btn back-link">
+                    View DB Queries
+                </a>
+
                 <li><strong>URL</strong> <a href="{{ url('url.view', {'url': result.meta('url')|simple_url }) }}">{{ result.meta('url') }}</a></li>
 
                 {% if result.meta('topic') is not empty %}

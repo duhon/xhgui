@@ -102,6 +102,7 @@ class Xhgui_Controller_Run extends Xhgui_Controller
             unset($data['parents']);
             $profile[] = $data;
         }
+
         $this->set(array(
             'profile' => $profile,
             'result' => $result,
@@ -109,6 +110,30 @@ class Xhgui_Controller_Run extends Xhgui_Controller
             'memory' => $memoryChart,
             'watches' => $watchedFunctions,
             'date_format' => $this->_app->config('date.format'),
+        ));
+    }
+
+    public function dbQueries()
+    {
+        $request = $this->_app->request();
+        $queries = $this->_profiles->get($request->get('id'))->getMeta('queries');
+
+        foreach ($queries as $k => $v) {
+            $queries[$k]['id'] = $k + 1;
+            $queries[$k]['qp'] = ['q' => $queries[$k]['q'], 'p' => $queries[$k]['p']];
+            $queries[$k]['count'] = count($queries[$k]['p']);
+            $queries[$k]['t_total'] = (int) (1000000 * array_sum($queries[$k]['t']));
+            $queries[$k]['t_avg'] = (int) (1000000 * array_sum($queries[$k]['t'])/count($queries[$k]['t']));
+            $queries[$k]['t_min'] = (int) (1000000 * min($queries[$k]['t']));
+            $queries[$k]['t_max'] = (int) (1000000 * max($queries[$k]['t']));
+        }
+
+//        var_dump($queries);
+//        die;
+
+        $this->_template = 'runs/queries.twig';
+        $this->set(array(
+            'queries' => $queries
         ));
     }
 

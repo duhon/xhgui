@@ -1,20 +1,21 @@
 #request-params-details {
-    width: 40%;
+    width: 50%;
     height: 100%;
     position: fixed;
     top: 0;
-    left: -40%;
+    left: -50%;
     z-index: 1020;
     background: #fff;
     box-shadow: 0 4px 4px rgba(0, 0, 0, 0.5);
     transition: left 0.25s ease-out;
+    overflow-y: scroll;
 }
 #request-params-details.active {
     left: 0;
     transition: left 0.25s ease-out;
 }
 .request-params-details-content {
-    height: 100%;
+    /*height: 100%;*/
     padding: 0 10px 10px 10px;
     overflow-y: scroll;
 }

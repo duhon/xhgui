@@ -1,0 +1,192 @@
+{% extends 'layout/base.twig' %}
+{% import 'macros/helpers.twig' as helpers %}
+
+{% block title %}
+- Profile - {{ result.meta.url }}
+{% endblock %}
+
+{% block content %}
+
+<div class="row-fluid">
+    <br>
+
+    <div class="row-fluid form-search">
+      <div class="pull-right form-search">
+          <input type="search" id="function-filter" placeholder="Filter by function name" />
+      </div>
+    </div>
+
+    <br>
+
+    <div id="request-params-details">
+        <span class="request-params-button-close pull-right">&#10799;</span>
+        <div id="query-details" class="request-params-details-content">
+            <h3>Query:</h3>
+            <pre></pre>
+        </div>
+        <div id="params-details" class="request-params-details-content">
+            <h3>Params:</h3>
+            <div class="content"></div>
+        </div>
+    </div>
+
+    <div class="row-fluid" data-role="grid"></div>
+</div>
+
+{% endblock %}
+
+{% block jsfoot %}
+<script src="{{ static('js/jquery-ui-1.9.2.custom.min.js') }}" type="text/javascript"></script>
+<script src="{{ static('js/jquery.event.drag-2.2.js') }}" type="text/javascript"></script>
+
+<script src="{{ static('js/slick/slick.core.js') }}" type="text/javascript"></script>
+<script src="{{ static('js/slick/slick.formatters.js') }}" type="text/javascript"></script>
+<script src="{{ static('js/slick/slick.dataview.js') }}" type="text/javascript"></script>
+<script src="{{ static('js/slick/slick.grid.js') }}" type="text/javascript"></script>
+<script src="{{ static('js/slick/slick.groupitemmetadataprovider.js') }}" type="text/javascript"></script>
+<script src="{{ static('js/view-db-query.js') }}"></script>
+
+<script type="text/javascript">
+    jQuery(function($){
+
+        var numberFormatter = function(column, row, data) {
+            return parseFloat(data).toFixed(0).replace(/./g, function (c, i, a) {
+                return i && c !== "." && !((a.length - i) % 3) ? ' ' + c : c;
+            })
+        };
+
+        var queryFormatter = function (column, row, data) {
+            return '<a href="#" class="view-request-params" data-query="' + data.q + '" data-params="' + escape(JSON.stringify(data.p)) + '">' + data.q + '</a>';
+        };
+
+        var columns = [
+            {
+                id: "id",
+                name: "#",
+                field: "id",
+                maxWidth: 50,
+                sortable: true,
+                cssClass: "cell-int"
+            },
+            {
+                id: "query",
+                name: "Query Body",
+                field: "qp",
+                sortable: false,
+                cssClass: "cell-call",
+                minWidth: 400,
+                type: 'string',
+                formatter: queryFormatter
+            },
+            {
+                id: "count",
+                name: "Count",
+                field: "count",
+                sortable: true,
+                cssClass: "cell-int",
+                maxWidth: 50,
+                formatter: numberFormatter
+            },
+            {
+                id: "total",
+                name: "t Total (us)",
+                field: "t_total",
+                sortable: true,
+                cssClass: "cell-int",
+                formatter: numberFormatter
+            },
+            {
+                id: "avg",
+                name: "t Avg (us)",
+                field: "t_avg",
+                sortable: true,
+                cssClass: "cell-int",
+                formatter: numberFormatter
+            },
+            {
+                id: "min",
+                name: "t Min (us)",
+                field: "t_min",
+                sortable: true,
+                cssClass: "cell-int",
+                formatter: numberFormatter
+            },
+            {
+                id: "max",
+                name: "t Max (us)",
+                field: "t_max",
+                sortable: true,
+                cssClass: "cell-int",
+                formatter: numberFormatter
+            }
+        ];
+
+        var options = {
+            enableCellNavigation: false,
+            forceFitColumns: true,
+            showHeaderRow: false,
+            headerRowHeight: 30,
+            explicitInitialization: true,
+            multiColumnSort: false
+        };
+
+        var $gridContainer = $('[data-role="grid"]');
+
+        var dataView = new Slick.Data.DataView();
+        var grid = new Slick.Grid($gridContainer, dataView, columns, options);
+
+        grid.onSort.subscribe(function(e, args) {
+            var cols = args.multiColumnSort ? args.sortCols : [args];
+
+            dataView.sort(function(dataRow1, dataRow2) {
+                for (var i = 0, l = cols.length; i < l; i++) {
+                    var field = cols[i].sortCol.field;
+                    var sign = cols[i].sortAsc ? 1 : -1;
+                    var type = cols[i].sortCol.cssClass === 'cell-int'
+                        || cols[i].sortCol.cssClass === 'cell-percent'
+                        ? 'int' : 'string';
+                    if (type == 'int') {
+                        var value1 = new Number(dataRow1[field]), value2 = new Number(dataRow2[field]);
+                    } else {
+                        var value1 = new String(dataRow1[field]), value2 = new String(dataRow2[field]);
+                    }
+                    var result = (value1 == value2 ? 0 : (value1 > value2 ? 1 : -1)) * sign;
+                    if (result != 0) {
+                        return result;
+                    }
+                }
+                return 0;
+            });
+            grid.invalidate();
+            grid.render();
+        });
+        grid.init();
+        var data = {{ queries|json_encode|raw }};
+        dataView.beginUpdate();
+        dataView.setItems(data);
+        dataView.setFilterArgs({searchString: ''});
+        dataView.setFilter(function(item, args) {
+            var re = new RegExp(args.searchString.replace(/\\/g, '\\\\'), 'ig');
+            return args.searchString === '' || re.test(item['name']);
+        });
+        dataView.endUpdate();
+
+        $('#function-filter').keyup(function (e) {
+            // clear on Esc
+            if (e.which === 27) {
+                this.value = "";
+            }
+            dataView.setFilterArgs({
+                searchString: this.value
+            });
+            dataView.refresh();
+            grid.invalidate();
+        });
+
+        $(window).on('resize',function() {
+            $gridContainer.css({'height': Math.max(40, $(window).height()-42) + 'px'});
+            grid.resizeCanvas();
+        }).trigger('resize');
+    });
+</script>
+{% endblock %}
