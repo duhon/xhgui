@@ -33,7 +33,7 @@ How To Run
 1. Clone this repo to your oms folder on your host machine;
 2. Make sure you have installed tideways php extension on your vagrant box. If you haven't - go to [tideways extension](https://github.com/tideways/php-profiler-extension) and install it;
     * Note, for our current vagrant box (OMS721) you might need to install `autoconf` to be able to install tideways extension. Check "Install autoconf for OMS721" below to do that.
-    * Note, for vagrant box that we use for OMS this step is automated with puppet. Check if file `/home/vagrant/php-xhprof-extension/modules/tideways_xhprof.so` exists inside a box. If not - run `vagrant provision`.
+    * Note, for our current vagrant box (OMS721) this step is automated with puppet. Check if file `/home/vagrant/php-xhprof-extension/modules/tideways_xhprof.so` exists inside a box. If not - run `vagrant provision`.
 3. Go to php.ini file and add below configuration for tideways;
     ```ini
        [tideways]
@@ -48,6 +48,7 @@ How To Run
 5. Make sure you have installed docker on your host machine. If not - go to [Docker](https://docs.docker.com/install/) and install it;
 6. Make sure you have installed docker-compose on your host machine. If not - go to [Docker Compose](https://docs.docker.com/compose/install/) and install it;
 7. Go to your xhgui folder on your host machine;
+8. Run `composer install --ignore-platform-reqs`
 8. Run `docker-compose up -d` to start containers;
 9. Your xhgui web interface must be available on [http://0.0.0.0:8088](http://0.0.0.0:8088)
 10. Your xhgui api interface must be visible from inside a vagrant box on `http://10.0.2.2:8088/api.php`;
@@ -57,6 +58,7 @@ How To Run
     * Add `include "/platform/svc/app/oms/xhgui/external/header.php";` to `oms/web/app.php` to profile oms;
     * Add `include "/platform/svc/app/oms/xhgui/external/header.php";` to `oms/app/console` to profile console commands;
     * Add `include "/platform/svc/app/oms/xhgui/external/header.php";` to `oms/app/job-console.php` to profile cron jobs;
+    * Note, you need to include above file right after the line `$loader = require __DIR__.'/../app/autoload.php';`; 
 12. Run your application and check results on xhgui web interface.
 
 xhgui
