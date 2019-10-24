@@ -69,6 +69,10 @@ tideways.auto_start=0
 tideways.sample_rate=100
 ```
 
+TODO:
+=====
+add graphviz
+
 License
 =======
 
