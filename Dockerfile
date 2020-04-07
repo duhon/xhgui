@@ -1,8 +1,8 @@
-FROM php:7-apache
-MAINTAINER Duhon <duhon@rambler.ru>
+FROM php:7.0-apache
 
 RUN apt-get update && apt-get install -y \
     zlib1g-dev \
+    libzip-dev \
     openssh-server \
     libssl-dev \
     --no-install-recommends && rm -r /var/lib/apt/lists/*
