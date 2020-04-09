@@ -1,8 +1,7 @@
 <?php
 if (!defined('XHGUI_ROOT_DIR')) {
-    require dirname(dirname(__FILE__)) . '/src/bootstrap.php';
+    require dirname(__DIR__) . '/src/bootstrap.php';
 }
-
 
 $options = getopt('f:');
 
@@ -22,7 +21,7 @@ if (!$fp) {
 }
 
 $container = Xhgui_ServiceContainer::instance();
-$saver = $container['saverMongo'];
+$saver = $container['saver.mongo'];
 
 
 while (!feof($fp)) {

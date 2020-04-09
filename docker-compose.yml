@@ -1,0 +1,18 @@
+version: "3.7"
+services:
+  app:
+    build: .
+    volumes:
+      - ./src:/var/xhgui/src
+      - ./webroot:/var/xhgui/webroot
+    ports:
+      - "8142:80"
+  mongodb:
+    image: percona/percona-server-mongodb:3.6
+    command: --storageEngine=inMemory #engine: mmapv1, rocksdb, wiredTiger, inMemory
+    environment:
+      - MONGO_INITDB_DATABASE=xhprof
+    volumes:
+      - ./mongo.init.d:/docker-entrypoint-initdb.d
+    ports:
+      - "27017:27017"

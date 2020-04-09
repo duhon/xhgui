@@ -1,11 +1,11 @@
 <?php
 
-class ProfileTest extends PHPUnit_Framework_TestCase
+class ProfileTest extends PHPUnit\Framework\TestCase
 {
     public function setUp()
     {
         parent::setUp();
-        $contents = file_get_contents('tests/fixtures/results.json');
+        $contents = file_get_contents(XHGUI_ROOT_DIR . '/tests/fixtures/results.json');
         $this->_fixture = json_decode($contents, true);
     }
 
@@ -334,7 +334,7 @@ class ProfileTest extends PHPUnit_Framework_TestCase
             $result['diff']['strpos()']['ewt'],
             'Should include exclusives'
         );
-        $this->assertEquals(0.5, $result['diffPercent']['functionCount']);
+        $this->assertEquals(0.33, number_format($result['diffPercent']['functionCount'], 2));
     }
 
     public function testGetCallgraph()
@@ -489,125 +489,5 @@ class ProfileTest extends PHPUnit_Framework_TestCase
         $profile = new Xhgui_Profile($data);
         $result = $profile->getDate();
         $this->assertInstanceOf('DateTime', $result);
-    }
-
-    public function testGetFlamegraphBasic()
-    {
-        $fixture = $this->_fixture[0];
-        $profile = new Xhgui_Profile($fixture);
-        $result = $profile->getFlamegraph();
-        $expected = array(
-            'data' => array(
-                'name' => 'main()',
-                'value' => 50139,
-                'children' => array(
-                    array(
-                        'name' => 'strpos()',
-                        'value' => 600
-                    )
-                ),
-            ),
-            'sort' => array(
-                'main()' => 0,
-                'strpos()' => 1
-            )
-        );
-        $this->assertEquals($expected, $result);
-    }
-
-    public function testGetFlamegraphNonUniqueLeaf()
-    {
-        $fixture = array(
-            'profile' => array(
-                'main()' => array(
-                    'wt' => 10000,
-                    'ct' => 1, 'cpu' => 1, 'mu' => 1, 'pmu' => 1,
-                ),
-                'main()==>one()' => array(
-                    'wt' => 2000,
-                    'ct' => 1, 'cpu' => 1, 'mu' => 1, 'pmu' => 1,
-                ),
-                'main()==>two()' => array(
-                    'wt' => 4000,
-                    'ct' => 1, 'cpu' => 1, 'mu' => 1, 'pmu' => 1,
-                ),
-                'main()==>three()' => array(
-                    'wt' => 4000,
-                    'ct' => 1, 'cpu' => 1, 'mu' => 1, 'pmu' => 1,
-                ),
-                'one()==>util()' => array(
-                    'wt' => 1500,
-                    'ct' => 1, 'cpu' => 1, 'mu' => 1, 'pmu' => 1,
-                ),
-                'two()==>util()' => array(
-                    'wt' => 3500,
-                    'ct' => 1, 'cpu' => 1, 'mu' => 1, 'pmu' => 1,
-                ),
-                'three()==>special()' => array(
-                    'wt' => 3500,
-                    'ct' => 1, 'cpu' => 1, 'mu' => 1, 'pmu' => 1,
-                ),
-                'util()==>util_helper()' => array(
-                    'wt' => 3900,
-                    'ct' => 2, 'cpu' => 1, 'mu' => 1, 'pmu' => 1,
-                ),
-            ),
-        );
-        $profile = new Xhgui_Profile($fixture);
-        $result = $profile->getFlamegraph();
-        $expected = array(
-            'data' => array(
-                'name' => 'main()',
-                'value' => 10000,
-                'children' => array(
-                    array(
-                        'name' => 'one()',
-                        'value' => 2000,
-                        'children' => array(
-                            array(
-                                'name' => 'util()',
-                                'value' => 5000,
-                                'children' => array(
-                                    array(
-                                        'name' => 'util_helper()',
-                                        'value' => 3900,
-                                    ),
-                                ),
-                            ),
-                        ),
-                    ),
-                    array(
-                        'name' => 'two()',
-                        'value' => 4000,
-                        'children' => array(
-                            array(
-                                'name' => 'util()',
-                                'value' => 5000
-                            ),
-                        ),
-                    ),
-                    array(
-                        'name' => 'three()',
-                        'value' => 4000,
-                        'children' => array(
-                            array(
-                                'name' => 'special()',
-                                'value' => 3500,
-                            ),
-                        ),
-                    ),
-                ),
-            ),
-            'sort' => array(
-                'main()' => 0,
-                'one()' => 1,
-                'util()' => 2,
-                'util_helper()' => 3,
-                'two()' => 4,
-                'three()' => 5,
-                'special()' => 6,
-            )
-        );
-        $this->assertEquals($expected, $result);
     }
 }

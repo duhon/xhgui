@@ -30,6 +30,24 @@ $app->get('/run/view', function () use ($di, $app) {
     $app->controller->view();
 })->name('run.view');
 
+$app->get('/run/delete', function () use ($di, $app) {
+    $app->controller = $di['runController'];
+    $app->controller->deleteForm();
+})->name('run.delete.form');
+
+$app->post('/run/delete', function () use ($di, $app) {
+    $di['runController']->deleteSubmit();
+})->name('run.delete.submit');
+
+$app->get('/run/delete_all', function () use ($di, $app) {
+    $app->controller = $di['runController'];
+    $app->controller->deleteAllForm();
+})->name('run.deleteAll.form');
+
+$app->post('/run/delete_all', function () use ($di, $app) {
+    $di['runController']->deleteAllSubmit();
+})->name('run.deleteAll.submit');
+
 $app->get('/url/view', function () use ($di, $app) {
     $app->controller = $di['runController'];
     $app->controller->url();
@@ -50,6 +68,7 @@ $app->get('/run/symbol/short', function () use ($di, $app) {
     $app->controller->symbolShort();
 })->name('run.symbol-short');
 
+// callgraph
 $app->get('/run/callgraph', function () use ($di, $app) {
     $app->controller = $di['runController'];
     $app->controller->callgraph();
@@ -59,6 +78,11 @@ $app->get('/run/callgraph/data', function () use ($di, $app) {
     $di['runController']->callgraphData();
 })->name('run.callgraph.data');
 
+$app->get('/run/callgraph/dot', function () use ($di, $app) {
+    $di['runController']->callgraphDataDot();
+})->name('run.callgraph.dot');
+
+// flamegraph
 $app->get('/run/flamegraph', function () use ($di, $app) {
     $app->controller = $di['runController'];
     $app->controller->flamegraph();
@@ -68,9 +92,12 @@ $app->get('/run/flamegraph/data', function () use ($di, $app) {
     $di['runController']->flamegraphData();
 })->name('run.flamegraph.data');
 
-$app->get('/run/callgraph/dot', function () use ($di, $app) {
-    $di['runController']->callgraphDataDot();
-})->name('run.callgraph.dot');
+// Import route
+$app->post('/run/import', function () use ($di, $app) {
+    $app->controller = $di['importController'];
+    $app->controller->import();
+})->name('run.import');
+
 
 // Watch function routes.
 $app->get('/watch', function () use ($di, $app) {
@@ -108,13 +135,3 @@ $app->get('/waterfall', function () use ($di, $app) {
 $app->get('/waterfall/data', function () use ($di) {
     $di['waterfallController']->query();
 })->name('waterfall.data');
-
-$app->post('/run/delete/:id', function ($id) use ($di, $app) {
-    $di['runController']->delete($id);
-})->name('run.delete');
-
-
-$app->post('/run/delete/all', function () use ($di, $app) {
-    $di['runController']->deleteAll();
-})->name('run.delete.all');
-

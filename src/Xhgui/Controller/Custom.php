@@ -1,14 +1,18 @@
 <?php
 
+use Slim\Slim;
+
 class Xhgui_Controller_Custom extends Xhgui_Controller
 {
-    protected $_app;
-    protected $_profiles;
+    /**
+     * @var Xhgui_Searcher_Interface
+     */
+    protected $searcher;
 
-    public function __construct($app, $profiles)
+    public function __construct(Slim $app, Xhgui_Searcher_Interface $searcher)
     {
-        $this->_app = $app;
-        $this->_profiles = $profiles;
+        parent::__construct($app);
+        $this->searcher = $searcher;
     }
 
     public function get()
@@ -18,11 +22,11 @@ class Xhgui_Controller_Custom extends Xhgui_Controller
 
     public function help()
     {
-        $request = $this->_app->request();
+        $request = $this->app->request();
         if ($request->get('id')) {
-            $res = $this->_profiles->get($request->get('id'));
+            $res = $this->searcher->get($request->get('id'));
         } else {
-            $res = $this->_profiles->latest();
+            $res = $this->searcher->latest();
         }
         $this->_template = 'custom/help.twig';
         $this->set(array(
@@ -32,18 +36,18 @@ class Xhgui_Controller_Custom extends Xhgui_Controller
 
     public function query()
     {
-        $request = $this->_app->request();
-        $response = $this->_app->response();
+        $request = $this->app->request();
+        $response = $this->app->response();
         $response['Content-Type'] = 'application/json';
 
         $query = json_decode($request->post('query'), true);
         $error = array();
-        if (is_null($query)) {
+        if (null === $query) {
             $error['query'] = json_last_error();
         }
 
         $retrieve = json_decode($request->post('retrieve'), true);
-        if (is_null($retrieve)) {
+        if (null === $retrieve) {
             $error['retrieve'] = json_last_error();
         }
 
@@ -52,11 +56,10 @@ class Xhgui_Controller_Custom extends Xhgui_Controller
             return $response->body($json);
         }
 
-        $perPage = $this->_app->config('page.limit');
+        $perPage = $this->app->config('page.limit');
 
-        $res = $this->_profiles->query($query, $retrieve)
-            ->limit($perPage);
-        $r = iterator_to_array($res);
-        return $response->body(json_encode($r));
+        $res = $this->searcher->query($query, $perPage, $retrieve);
+
+        return $response->body(json_encode($res));
     }
 }

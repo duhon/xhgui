@@ -57,7 +57,7 @@
               </a>
             </td>
             <td>
-                {% set addr = result.meta.url %}
+                {% set addr = result.meta('SERVER.SERVER_NAME') ~ result.meta.url %}
                 {{ helpers.tip_link(
                     addr,
                     50,
@@ -69,16 +69,17 @@
               <a href="{{ url('run.view', {'id': result.id|trim }) }}">
                 {{ result.date|date(date_format) }}
               </a>
+              <a href="{{ url('run.view', {'id': result.id|trim, 'filter': true }) }}">
+                [filter]
+              </a>
             </td>
             <td class="right">{{ result.get('main()', 'wt') |as_time }}</td>
             <td class="right">{{ result.get('main()', 'cpu') |as_time }}</td>
             <td class="right">{{ result.get('main()', 'mu') |as_bytes }}</td>
             <td class="right">{{ result.get('main()', 'pmu') |as_bytes }}</td>
-            <td class="right">
-                <a action="delete"  href="{{ urlFor('run.delete', {'id': result.id|trim }) }}"
-                    title="Remove item"
-                    >
-                    <i class="icon-remove"></i>
+            <td>
+                <a href="{{ url('run.delete.form', {'id': result.id|trim }) }}">
+                    <i class="icon-trash"></i>
                 </a>
             </td>
         </tr>
@@ -92,6 +93,3 @@
         </tbody>
     </table>
 </div>
-<script type="text/javascript">
-
-</script>

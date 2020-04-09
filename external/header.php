@@ -6,11 +6,11 @@ class XH
 {
     static function start() 
     {
-        if (!extension_loaded('tideways_xhprof')) {
+        if (!extension_loaded('tideways')) {
             error_log('xhgui - either extension tideways must be loaded');
             return;
         }
-        tideways_xhprof_enable(TIDEWAYS_XHPROF_FLAGS_CPU | TIDEWAYS_XHPROF_FLAGS_MEMORY);
+        tideways_enable(TIDEWAYS_FLAGS_CPU | TIDEWAYS_FLAGS_MEMORY);
         register_shutdown_function(
             function () {
                 \XH::stop();
@@ -24,7 +24,7 @@ class XH
         flush();
 
         $data = [
-            'profile' => tideways_xhprof_disable(),
+            'profile' => tideways_disable(),
             'meta' => [
                 'server' => $_SERVER,
                 'get' => $_GET,

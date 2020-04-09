@@ -51,6 +51,194 @@ Tideways is a PHP Extension that records and provides profiling data.
 XHGui (this tool) takes that information, saves it in MongoDB, and provides
 a convenient GUI for working with it.
 
+[![Build Status](https://travis-ci.org/perftools/xhgui.svg?branch=master)](https://travis-ci.org/perftools/xhgui)
+[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/perftools/xhgui/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/perftools/xhgui/?branch=master)
+[![Code Coverage](https://scrutinizer-ci.com/g/perftools/xhgui/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/perftools/xhgui/?branch=master)
+
+
+Configuration
+=============
+
+Configure XHGui Profiling Rate
+-------------------------------
+
+After installing XHGui, you may want to change how frequently you
+profile the host application. The `profiler.enable` configuration option
+allows you to provide a callback function that specifies the requests that
+are profiled. By default, XHGui profiles 1 in 100 requests.
+
+The following example configures XHGui to only profile requests
+from a specific URL path:
+
+The following example configures XHGui to profile 1 in 100 requests,
+excluding requests with the `/blog` URL path:
+
+```php
+// In config/config.php
+return array(
+    // Other config
+    'profiler.enable' => function() {
+        $url = $_SERVER['REQUEST_URI'];
+        if (strpos($url, '/blog') === 0) {
+            return false;
+        }
+        return rand(1, 100) === 42;
+    }
+);
+```
+
+In contrast, the following example configured XHGui to profile *every*
+request:
+
+```php
+// In config/config.php
+return array(
+    // Other config
+    'profiler.enable' => function() {
+        return true;
+    }
+);
+```
+
+Configure 'Simple' URLs Creation
+--------------------------------
+
+XHGui generates 'simple' URLs for each profile collected. These URLs are
+used to generate the aggregate data used on the URL view. Since
+different applications have different requirements for how URLs map to
+logical blocks of code, the `profile.simple_url` configuration option
+allows you to provide specify the logic used to generate the simple URL.
+By default, all numeric values in the query string are removed.
+
+```php
+// In config/config.php
+return array(
+    // Other config
+    'profile.simple_url' => function($url) {
+        // Your code goes here.
+    }
+);
+```
+
+The URL argument is the `REQUEST_URI` or `argv` value.
+
+Configure ignored functions
+---------------------------
+
+You can use the `profiler.options` configuration value to set additional options
+for the profiler extension. This is useful when you want to exclude specific
+functions from your profiler data:
+
+```php
+// In config/config.php
+return array(
+    //Other config
+    'profiler.options' => [
+        'ignored_functions' => ['call_user_func', 'call_user_func_array']
+    ]
+);
+```
+
+In addition, if you do not want to profile all PHP built-in functions,
+you can make use of the `profiler.skip_built_in` option.
+
+Profiling a Web Request or CLI script
+=====================================
+
+Using [xhgui-collector](https://github.com/perftools/xhgui-collector) you can
+collect data from your web applications and CLI scripts. This data is then
+pushed into xhgui's database where it can be viewed with this application.
+
+Saving & Importing Profiles
+---------------------------
+
+If your site cannot directly connect to your MongoDB instance, you can choose
+to save your data to a temporary file for a later import to XHGui's MongoDB
+database.
+
+To configure XHGui to save your data to a temporary file,
+change the `save.handler` setting to `file` and define your file's
+path with `save.handler.filename`.
+
+To import a saved file to MongoDB use XHGui's provided
+`external/import.php` script.
+
+Be aware of file locking: depending on your workload, you may need to
+change the `save.handler.filename` file path to avoid file locking
+during the import.
+
+The following demonstrate the use of `external/import.php`:
+
+```bash
+php external/import.php -f /path/to/file
+```
+
+**Warning**: Importing the same file twice will load twice the run datas inside
+MongoDB, resulting in duplicate profiles
+
+
+Limiting MongoDB Disk Usage
+---------------------------
+
+Disk usage can grow quickly, especially when profiling applications with large
+code bases or that use larger frameworks.
+
+To keep the growth
+in check, configure MongoDB to automatically delete profiling documents once they
+have reached a certain age by creating a [TTL index](http://docs.mongodb.org/manual/core/index-ttl/).
+
+Decide on a maximum profile document age in seconds: you
+may wish to choose a lower value in development (where you profile everything),
+than production (where you profile only a selection of documents). The
+following command instructs Mongo to delete documents over 5 days (432000
+seconds) old.
+
+```
+$ mongo
+> use xhprof
+> db.results.ensureIndex( { "meta.request_ts" : 1 }, { expireAfterSeconds : 432000 } )
+```
+
+Add indexes to MongoDB to improve performance.
+
+XHGui stores profiling information in a `results` collection in the
+`xhprof` database in MongoDB. Adding indexes improves performance,
+letting you navigate pages more quickly.
+
+To add an index, open a `mongo` shell from your command prompt.
+Then, use MongoDB's `db.collection.ensureIndex()` method to add
+the indexes, as in the following:
+
+```
+$ mongo
+> use xhprof
+> db.results.ensureIndex( { 'meta.SERVER.REQUEST_TIME' : -1 } )
+> db.results.ensureIndex( { 'profile.main().wt' : -1 } )
+> db.results.ensureIndex( { 'profile.main().mu' : -1 } )
+> db.results.ensureIndex( { 'profile.main().cpu' : -1 } )
+> db.results.ensureIndex( { 'meta.url' : 1 } )
+> db.results.ensureIndex( { 'meta.simple_url' : 1 } )
+```
+
+
+Waterfall Display
+-----------------
+
+The goal of XHGui's waterfall display is to recognize that concurrent requests can
+affect each other. Concurrent database requests, CPU-intensive
+activities and even locks on session files can become relevant. With an
+Ajax-heavy application, understanding the page build is far more complex than
+a single load: hopefully the waterfall can help. Remember, if you're only
+profiling a sample of requests, the waterfall fills you with impolite lies.
+
+Some Notes:
+
+ * There should probably be more indexes on MongoDB for this to be performant.
+ * The waterfall display introduces storage of a new `request_ts_micro` value, as second level
+   granularity doesn't work well with waterfalls.
+ * The waterfall display is still very much in alpha.
+ * Feedback and pull requests are welcome :)
+
 Using Tideways Extension
 ========================
 

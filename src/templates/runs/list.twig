@@ -11,10 +11,12 @@
 {% if runs|length or has_search %}
 <div class="searchbar clearfix">
     <a href="#" class=" btn btn-small search-expand" title="Show search form">
-        <i class="icon-search"></i> Search
+    <a href="{{ url('run.deleteAll.form') }}" class="pull-right btn btn-small delete-all" title="Delete all">
+        <i class="icon-trash"></i> Delete all
     </a>
-    <a action="deleteAll" class="btn  btn-small" href="{{ urlFor('run.delete.all') }}">
-        <i class="icon-remove"></i>  Clean Up
+
+    <a href="#" class="pull-right btn btn-small search-expand" title="Show search form">
+        <i class="icon-search"></i> Search
     </a>
 
     <form action="{{ url('home') }}" method="get" class="row hide search-form form-inline">

@@ -1,20 +1,23 @@
 <?php
 
+use Slim\Slim;
+
 class Xhgui_Controller_Watch extends Xhgui_Controller
 {
+    /**
+     * @var Xhgui_Searcher_Interface
+     */
+    protected $searcher;
 
-    protected $_app;
-    protected $_watches;
-
-    public function __construct($app, $watches)
+    public function __construct(Slim $app, Xhgui_Searcher_Interface $searcher)
     {
-        $this->_app = $app;
-        $this->_watches = $watches;
+        parent::__construct($app);
+        $this->searcher = $searcher;
     }
 
     public function get()
     {
-        $watched = $this->_watches->getAll();
+        $watched = $this->searcher->getAllWatches();
 
         $this->_template = 'watch/list.twig';
         $this->set(array('watched' => $watched));
@@ -22,18 +25,15 @@ class Xhgui_Controller_Watch extends Xhgui_Controller
 
     public function post()
     {
-        $app = $this->_app;
-        $watches = $this->_watches;
-
         $saved = false;
-        $request = $app->request();
+        $request = $this->app->request();
         foreach ((array)$request->post('watch') as $data) {
             $saved = true;
-            $watches->save($data);
+            $this->searcher->saveWatch($data);
         }
         if ($saved) {
-            $app->flash('success', 'Watch functions updated.');
+            $this->app->flash('success', 'Watch functions updated.');
         }
-        $app->redirect($app->urlFor('watch.list'));
+        $this->app->redirect($this->app->urlFor('watch.list'));
     }
 }

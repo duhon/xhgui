@@ -20,9 +20,15 @@ class Xhgui_Profile
     protected $_exclusiveKeys = array('ewt', 'ecpu', 'emu', 'epmu');
     protected $_functionCount;
 
-    public function __construct($profile, $convert = true)
+    public function __construct(array $profile, $convert = true)
     {
         $this->_data = $profile;
+
+        // cast MongoIds to string
+        if (isset($this->_data['_id']) && !is_string($this->_data['_id'])) {
+            $this->_data['_id'] = (string) $this->_data['_id'];
+        }
+
         if (!empty($profile['profile']) && $convert) {
             $this->_process();
         }
@@ -400,6 +406,25 @@ class Xhgui_Profile
     }
 
     /**
+     * @param array $profileData
+     * @param array $filters
+     *
+     * @return array
+     */
+    public function filter($profileData, $filters = [])
+    {
+        foreach ($filters as $key => $item) {
+            foreach ($profileData as $keyItem => $method) {
+                if (fnmatch($item, $keyItem)) {
+                    unset($profileData[ $keyItem ]);
+                }
+            }
+        }
+
+        return $profileData;
+    }
+
+    /**
      * Split a key name into the parent==>child format.
      *
      * @param string $name The name to split.
@@ -572,79 +597,6 @@ class Xhgui_Profile
                 $this->_callgraphData($childName, $main, $metric, $threshold, $index);
             }
         }
-    }
-
-    /**
-     * Return a structured array suitable for generating flamegraph visualizations.
-     *
-     * Functions whose inclusive time is less than 1% of the total time will
-     * be excluded from the callgraph data.
-     *
-     * @return array
-     */
-    public function getFlamegraph($metric = 'wt', $threshold = 0.01)
-    {
-        $valid = array_merge($this->_keys, $this->_exclusiveKeys);
-        if (!in_array($metric, $valid)) {
-            throw new Exception("Unknown metric '$metric'. Cannot generate flamegraph.");
-        }
-        $this->calculateSelf();
-
-        // Non exclusive metrics are always main() because it is the root call scope.
-        if (in_array($metric, $this->_exclusiveKeys)) {
-            $main = $this->_maxValue($metric);
-        } else {
-            $main = $this->_collapsed['main()'][$metric];
-        }
-
-        $this->_visited = $this->_nodes = $this->_links = array();
-        $flamegraph = $this->_flamegraphData(self::NO_PARENT, $main, $metric, $threshold);
-        return array('data' => array_shift($flamegraph), 'sort' => $this->_visited);
-    }
-
-    protected function _flamegraphData($parentName, $main, $metric, $threshold, $parentIndex = null)
-    {
-        $result = array();
-        // Leaves don't have children, and don't have links/nodes to add.
-        if (!isset($this->_indexed[$parentName])) {
-            return $result;
-        }
-
-        $children = $this->_indexed[$parentName];
-        foreach ($children as $childName => $metrics) {
-            $metrics = $this->_collapsed[$childName];
-            if ($metrics[$metric] / $main <= $threshold) {
-                continue;
-            }
-            $current = array(
-                'name' => $childName,
-                'value' => $metrics[$metric],
-            );
-            $revisit = false;
-
-            // Keep track of which nodes we've visited and their position
-            // in the node list.
-            if (!isset($this->_visited[$childName])) {
-                $index = count($this->_nodes);
-                $this->_visited[$childName] = $index;
-                $this->_nodes[] = $current;
-            } else {
-                $revisit = true;
-                $index = $this->_visited[$childName];
-            }
-
-            // If the current function has more children,
-            // walk that call subgraph.
-            if (isset($this->_indexed[$childName]) && !$revisit) {
-                $grandChildren = $this->_flamegraphData($childName, $main, $metric, $threshold, $index);
-                if (!empty($grandChildren)) {
-                    $current['children'] = $grandChildren;
-                }
-            }
-
-            $result[] = $current;
-        }
-        return $result;
     }
 
     public function toArray()

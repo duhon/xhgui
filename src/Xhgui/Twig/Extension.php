@@ -101,7 +101,7 @@ class Xhgui_Twig_Extension extends Twig_Extension
 
     public function formatTime($value)
     {
-        return number_format((float)$value/1000000) . '&nbsp;<span class="units">s</span>';
+        return number_format((float)$value) . '&nbsp;<span class="units">µs</span>';
     }
 
     public function formatDiff($value)

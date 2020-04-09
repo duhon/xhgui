@@ -1,7 +1,7 @@
 <?php
 use Slim\Environment;
 
-class Controller_WatchTest extends PHPUnit_Framework_TestCase
+class Controller_WatchTest extends PHPUnit\Framework\TestCase
 {
     public function setUp()
     {
@@ -13,18 +13,17 @@ class Controller_WatchTest extends PHPUnit_Framework_TestCase
         $di = Xhgui_ServiceContainer::instance();
         unset($di['app']);
 
-        $mock = $this->getMock(
-                'Slim\Slim',
-                array('redirect', 'render', 'urlFor'),
-                array($di['config'])
-            );
+        $mock = $this->getMockBuilder('Slim\Slim')
+            ->setMethods(array('redirect', 'render', 'urlFor'))
+            ->setConstructorArgs(array($di['config']))
+            ->getMock();
         $di['app'] = $di->share(function ($c) use ($mock) {
             return $mock;
         });
         $this->watches = $di['watchController'];
         $this->app = $di['app'];
-        $this->watchFunctions = $di['watchFunctions'];
-        $this->watchFunctions->truncate();
+        $this->searcher = $di['searcher'];
+        $this->searcher->truncateWatches();
     }
 
     public function testGet()
@@ -50,7 +49,7 @@ class Controller_WatchTest extends PHPUnit_Framework_TestCase
             ->method('redirect');
 
         $this->watches->post();
-        $result = $this->watchFunctions->getAll();
+        $result = $this->searcher->getAllWatches();
 
         $this->assertCount(2, $result);
         $this->assertEquals('strlen', $result[0]['name']);
@@ -59,8 +58,8 @@ class Controller_WatchTest extends PHPUnit_Framework_TestCase
 
     public function testPostModify()
     {
-        $this->watchFunctions->save(array('name' => 'strlen'));
-        $saved = $this->watchFunctions->getAll();
+        $this->searcher->saveWatch(array('name' => 'strlen'));
+        $saved = $this->searcher->getAllWatches();
 
         $_POST = array(
             'watch' => array(
@@ -68,7 +67,7 @@ class Controller_WatchTest extends PHPUnit_Framework_TestCase
             )
         );
         $this->watches->post();
-        $result = $this->watchFunctions->getAll();
+        $result = $this->searcher->getAllWatches();
 
         $this->assertCount(1, $result);
         $this->assertEquals('strpos', $result[0]['name']);
@@ -76,8 +75,8 @@ class Controller_WatchTest extends PHPUnit_Framework_TestCase
 
     public function testPostDelete()
     {
-        $this->watchFunctions->save(array('name' => 'strlen'));
-        $saved = $this->watchFunctions->getAll();
+        $this->searcher->saveWatch(array('name' => 'strlen'));
+        $saved = $this->searcher->getAllWatches();
 
         $_POST = array(
             'watch' => array(
@@ -85,7 +84,7 @@ class Controller_WatchTest extends PHPUnit_Framework_TestCase
             )
         );
         $this->watches->post();
-        $result = $this->watchFunctions->getAll();
+        $result = $this->searcher->getAllWatches();
 
         $this->assertCount(0, $result);
     }
